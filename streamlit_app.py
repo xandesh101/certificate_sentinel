@@ -4,6 +4,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from pathlib import Path
+
+def _ensure_certificates():
+    cert_dir = Path(__file__).parent / "data" / "certificates"
+    pdfs = list(cert_dir.glob("*.pdf"))
+    if not pdfs:
+        from scripts.generate_certificates import generate_all
+        generate_all()
+
+_ensure_certificates()
+
 import streamlit as st
 
 from src.utils.auth import require_password
