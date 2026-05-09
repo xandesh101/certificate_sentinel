@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+logs/runs.jsonl
+logs/overrides.jsonl
+data/certificates/*.pdf
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.ruff_cache/

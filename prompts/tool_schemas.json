@@ -1,0 +1,93 @@
+{
+  "tools": [
+    {
+      "name": "get_customer_transactions",
+      "description": "Retrieve a sample of recent transactions for a given customer. Use this to understand what the customer actually buys, in what categories, and at what frequency. The transaction sample lets you compare the customer's actual purchasing behavior against the exemption type they claim on the certificate.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "description": "Unique customer identifier in the format CUST_NNN"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of transactions to return. Default 30. The transactions are sorted by date descending.",
+            "default": 30,
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": ["customer_id"]
+      }
+    },
+    {
+      "name": "get_state_exemption_rules",
+      "description": "Retrieve the applicable rules for a given state and exemption type. Use this to ground your reasoning in canonical rules. You should call this before making a decision unless you've already retrieved the relevant rules. Do not cite rules from your training knowledge; only cite rules returned by this tool.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "Two-letter state code, e.g. TX",
+            "pattern": "^[A-Z]{2}$"
+          },
+          "exemption_type": {
+            "type": "string",
+            "description": "The type of exemption being claimed",
+            "enum": ["resale", "manufacturing", "agricultural"]
+          }
+        },
+        "required": ["state", "exemption_type"]
+      }
+    },
+    {
+      "name": "record_decision",
+      "description": "Record your final validation decision. This is the terminal action of your work. Once you call this tool, your job ends. You must populate all required fields. Citations must reference specific identifiers (rule_id for state_rule, transaction_id for transaction, field name for certificate_field).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "decision": {
+            "type": "string",
+            "description": "Your validation decision",
+            "enum": ["PASS", "FLAG", "NEEDS_REVIEW"]
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Your confidence in this decision, from 0.0 (no confidence) to 1.0 (complete confidence)",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "reasoning_summary": {
+            "type": "string",
+            "description": "2 to 4 sentences in plain tax-compliance language explaining your decision. State what you found, do not hedge with 'I think' or 'it seems'. Cite specific identifiers where possible."
+          },
+          "citations": {
+            "type": "array",
+            "description": "Specific evidence supporting your decision. At least one citation is required for any FLAG decision; PASS decisions should cite the rule and at least one supporting transaction.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "enum": ["certificate_field", "transaction", "state_rule"],
+                  "description": "What kind of evidence this is"
+                },
+                "reference_id": {
+                  "type": "string",
+                  "description": "The specific identifier: rule_id for state_rule, transaction_id for transaction, field name for certificate_field"
+                },
+                "excerpt": {
+                  "type": "string",
+                  "description": "A short string showing the specific evidence text or value"
+                }
+              },
+              "required": ["source", "reference_id", "excerpt"]
+            }
+          }
+        },
+        "required": ["decision", "confidence", "reasoning_summary", "citations"]
+      }
+    }
+  ]
+}

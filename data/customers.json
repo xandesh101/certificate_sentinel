@@ -1,0 +1,94 @@
+{
+  "customers": [
+    {
+      "customer_id": "CUST_001",
+      "name": "Acme Office Supplies LLC",
+      "industry": "Office supply retailer",
+      "primary_business": "Resale of office products to commercial customers",
+      "states_active": ["TX", "OK", "LA"],
+      "registered_taxpayer_id": "TX-12345678",
+      "registration_type": "registered_retailer"
+    },
+    {
+      "customer_id": "CUST_002",
+      "name": "Lighthouse Software Consulting",
+      "industry": "Information technology services",
+      "primary_business": "Software consulting, system integration, and IT services for enterprise clients",
+      "states_active": ["TX", "GA"],
+      "registered_taxpayer_id": "TX-23456789",
+      "registration_type": "service_provider"
+    },
+    {
+      "customer_id": "CUST_003",
+      "name": "Hill Country Farm Equipment",
+      "industry": "Agricultural equipment dealer",
+      "primary_business": "Sale and service of farm machinery, irrigation systems, and agricultural implements",
+      "states_active": ["TX"],
+      "registered_taxpayer_id": "TX-34567890",
+      "registration_type": "agricultural_producer"
+    },
+    {
+      "customer_id": "CUST_004",
+      "name": "Brisket Barons Restaurants",
+      "industry": "Food service",
+      "primary_business": "Operation of full-service barbecue restaurants across Texas",
+      "states_active": ["TX"],
+      "registered_taxpayer_id": "TX-45678901",
+      "registration_type": "service_provider"
+    },
+    {
+      "customer_id": "CUST_005",
+      "name": "Steel & Stone Industrial Mfg",
+      "industry": "Industrial manufacturing",
+      "primary_business": "Manufacturing of structural steel components and custom fabricated parts for construction industry",
+      "states_active": ["TX", "NM"],
+      "registered_taxpayer_id": "TX-56789012",
+      "registration_type": "manufacturer"
+    },
+    {
+      "customer_id": "CUST_006",
+      "name": "Lone Star Wholesale Distribution",
+      "industry": "Wholesale distribution",
+      "primary_business": "Wholesale distribution of general merchandise and consumer goods to retailers",
+      "states_active": ["TX", "OK", "AR"],
+      "registered_taxpayer_id": "TX-67890123",
+      "registration_type": "registered_wholesaler"
+    },
+    {
+      "customer_id": "CUST_007",
+      "name": "Texas Plumbing Supply Co",
+      "industry": "Plumbing supply wholesale",
+      "primary_business": "Wholesale distribution of plumbing fixtures, pipes, and fittings to licensed contractors",
+      "states_active": ["TX"],
+      "registered_taxpayer_id": "TX-78901234",
+      "registration_type": "registered_wholesaler"
+    },
+    {
+      "customer_id": "CUST_008",
+      "name": "Pecan Valley Farms",
+      "industry": "Agricultural production",
+      "primary_business": "Commercial pecan and grain farming operations across Hill Country Texas",
+      "states_active": ["TX"],
+      "registered_taxpayer_id": "TX-89012345",
+      "registration_type": "agricultural_producer"
+    },
+    {
+      "customer_id": "CUST_009",
+      "name": "New Customer Inc",
+      "industry": "General merchandise retail",
+      "primary_business": "Retail sale of general merchandise and consumer goods",
+      "states_active": ["TX"],
+      "registered_taxpayer_id": "TX-90123456",
+      "registration_type": "unregistered"
+    },
+    {
+      "customer_id": "CUST_010",
+      "name": "Mixed Goods Trading Co",
+      "industry": "Mixed-use retail",
+      "primary_business": "Retail and resale of office supplies combined with in-house use of cleaning and maintenance products",
+      "states_active": ["TX"],
+      "registered_taxpayer_id": "TX-01234567",
+      "registration_type": "registered_retailer"
+    }
+  ]
+}
