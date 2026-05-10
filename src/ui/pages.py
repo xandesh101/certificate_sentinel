@@ -1,11 +1,13 @@
 """Streamlit page implementations."""
 
+import base64
 import json
 import time
 import uuid
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from src.ui.components import (
     citation_list,
@@ -16,6 +18,7 @@ from src.ui.components import (
 
 _CERT_DIR = Path(__file__).parent.parent.parent / "data" / "certificates"
 _SCENARIOS_FILE = Path(__file__).parent.parent.parent / "eval_scenarios" / "scenarios.json"
+_BASE = Path(__file__).parent.parent.parent
 
 
 def _load_scenarios() -> list[dict]:
@@ -24,10 +27,19 @@ def _load_scenarios() -> list[dict]:
 
 
 def _load_cert(pdf_path: str) -> bytes:
-    full = Path(__file__).parent.parent.parent / pdf_path
+    full = _BASE / pdf_path
     if not full.exists():
         raise FileNotFoundError(f"Certificate PDF not found: {full}")
     return full.read_bytes()
+
+
+def _embed_pdf(pdf_bytes: bytes) -> None:
+    b64 = base64.b64encode(pdf_bytes).decode("utf-8")
+    components.html(
+        f'<iframe src="data:application/pdf;base64,{b64}" width="100%" height="520px" '
+        f'style="border:none;border-radius:4px;"></iframe>',
+        height=530,
+    )
 
 
 def validation_page() -> None:
@@ -48,11 +60,25 @@ def validation_page() -> None:
 
     selected = next(s for s in scenarios if s["scenario_id"] == selected_id)
 
-    with st.expander("Scenario details"):
-        st.markdown(f"**Customer:** `{selected['customer_id']}`")
-        st.markdown(f"**Claimed exemption:** `{selected['claimed_exemption_type']}`")
-        st.markdown(f"**Expected decision:** `{selected['expected_decision']}`")
-        st.markdown(f"**Rationale:** {selected['rationale']}")
+    with st.expander("Scenario details & certificate preview", expanded=False):
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.markdown(f"**Scenario ID:** `{selected['scenario_id']}`")
+            st.markdown(f"**Customer:** `{selected['customer_id']}`")
+            st.markdown(f"**Claimed exemption:** `{selected['claimed_exemption_type']}`")
+            st.markdown(f"**Expected decision:** `{selected['expected_decision']}`")
+            conf = selected["expected_confidence_range"]
+            st.markdown(f"**Expected confidence range:** `{conf[0]} – {conf[1]}`")
+            st.markdown(f"**Expected citations:** `{', '.join(selected['expected_citation_sources'])}`")
+            st.markdown("**Rationale:**")
+            st.info(selected["rationale"])
+        with col2:
+            st.markdown("**Certificate PDF:**")
+            try:
+                pdf_bytes_preview = _load_cert(selected["certificate_pdf"])
+                _embed_pdf(pdf_bytes_preview)
+            except FileNotFoundError:
+                st.warning("PDF not yet generated.")
 
     run_btn = st.button("Run Validation", type="primary", use_container_width=True)
 
@@ -125,6 +151,162 @@ def validation_page() -> None:
 
         with st.expander("View raw agent trace"):
             st.json(raw_messages)
+
+
+def scenarios_page() -> None:
+    """Scenario browser — all 10 test cases with PDFs for hiring team review."""
+    synthetic_data_banner()
+    st.title("Scenario Browser")
+    st.caption("All 10 evaluation scenarios with certificates and expected outcomes.")
+
+    scenarios = _load_scenarios()
+
+    decision_colors = {"PASS": "🟢", "FLAG": "🔴", "NEEDS_REVIEW": "🟡"}
+
+    for s in scenarios:
+        icon = decision_colors.get(s["expected_decision"], "⚪")
+        header = f"{icon} {s['scenario_id']} — {s['description']}"
+        with st.expander(header):
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                st.markdown(f"**Customer:** `{s['customer_id']}`")
+                st.markdown(f"**Exemption type claimed:** `{s['claimed_exemption_type']}`")
+                st.markdown(f"**Expected decision:** `{s['expected_decision']}`")
+                conf = s["expected_confidence_range"]
+                st.markdown(f"**Expected confidence:** `{conf[0]} – {conf[1]}`")
+                st.markdown(f"**Expected citation sources:** `{', '.join(s['expected_citation_sources'])}`")
+                st.markdown(f"**Expected reasoning topics:** `{', '.join(s['expected_reasoning_topics'])}`")
+                st.markdown("**Why this outcome:**")
+                st.info(s["rationale"])
+
+                pdf_path = _BASE / s["certificate_pdf"]
+                if pdf_path.exists():
+                    with open(pdf_path, "rb") as f:
+                        st.download_button(
+                            label="Download Certificate PDF",
+                            data=f.read(),
+                            file_name=pdf_path.name,
+                            mime="application/pdf",
+                            key=f"dl_{s['scenario_id']}",
+                        )
+            with col2:
+                st.markdown("**Certificate PDF:**")
+                try:
+                    pdf_bytes = _load_cert(s["certificate_pdf"])
+                    _embed_pdf(pdf_bytes)
+                except FileNotFoundError:
+                    st.warning("PDF not generated yet.")
+
+
+def architecture_page() -> None:
+    """System design diagram page."""
+    st.title("System Architecture")
+    st.caption("How Certificate Sentinel works — for engineering and product review.")
+
+    st.markdown("""
+This prototype adds a **semantic validation layer** on top of Vertex's existing field-level certificate validation.
+The agent reasons across three evidence sources before producing a structured decision.
+""")
+
+    components.html("""
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'dark'});</script>
+<div class="mermaid" style="font-size:14px;">
+flowchart TD
+    A["📄 Certificate PDF\n(user selects scenario)"] --> B
+
+    subgraph Agent["🤖 Agent Orchestrator (orchestrator.py)"]
+        B["Build initial message\n(PDF as document block)"]
+        B --> C["Claude claude-sonnet-4-6\ntool_use loop"]
+        C -->|"tool_use"| D{"Dispatch tool"}
+        D -->|"get_customer_transactions"| E["Transaction lookup\n(store.py)"]
+        D -->|"get_state_exemption_rules"| F["Rules lookup\n(store.py)"]
+        E --> G["Append tool_result\nto messages"]
+        F --> G
+        G --> C
+        D -->|"record_decision\n(terminal)"| H["Extract Decision\nPASS / FLAG / NEEDS_REVIEW"]
+        C -->|"Hard cap: 10 iterations"| H
+    end
+
+    subgraph Data["📦 Mock Data (JSON)"]
+        E2["customers.json\n10 customer profiles"]
+        F2["transactions.json\n200+ transactions"]
+        R2["rules.json\n20 Texas exemption rules"]
+    end
+
+    E -.-> E2
+    E -.-> F2
+    F -.-> R2
+
+    H --> I["🔍 Post-Decision Verifier\n(verifier.py)\nValidates cited rule_ids exist"]
+    I -->|"Hallucinated rule_id detected"| J["Downgrade to NEEDS_REVIEW\nconfidence = 0.3"]
+    I -->|"All citations valid"| K["Final Decision"]
+    J --> K
+
+    K --> L["📝 Run Logger\n(logs/runs.jsonl)"]
+    K --> M["🖥️ Streamlit UI\nDecision banner + citations"]
+    M --> N["👤 Human Reviewer\nAccept or Override"]
+    N --> O["📝 Override Logger\n(logs/overrides.jsonl)"]
+</div>
+""", height=700)
+
+    st.divider()
+
+    st.subheader("Key Design Decisions")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**Why native tool use, not LangChain?**")
+        st.info(
+            "The agent loop is explicit and inspectable. Every tool call, result, and reasoning step "
+            "is visible in the 'raw agent trace' expander. LangChain abstracts this away, making it "
+            "harder to debug failures or explain the agent's reasoning to a tax team."
+        )
+        st.markdown("**Why a post-decision verifier?**")
+        st.info(
+            "Claude can hallucinate rule IDs. The verifier checks every cited state_rule reference "
+            "against the actual rules table. If a rule doesn't exist, the decision is downgraded to "
+            "NEEDS_REVIEW. This is the defense-in-depth pattern that makes AI decisions auditable."
+        )
+        st.markdown("**Why NEEDS_REVIEW as a third decision state?**")
+        st.info(
+            "Binary PASS/FLAG forces the agent to guess on ambiguous cases, overstating confidence. "
+            "NEEDS_REVIEW lets the agent be honest about uncertainty (new customer, mixed transactions) "
+            "and routes these to a human rather than making a potentially wrong automated call."
+        )
+    with col2:
+        st.markdown("**Why mock JSON data instead of a real database?**")
+        st.info(
+            "This is a 10-hour prototype. A real database adds infrastructure complexity without "
+            "changing what the agent can demonstrate. The JSON store is typed (Pydantic), "
+            "schema-validated, and swappable for a real DB in production."
+        )
+        st.markdown("**Why no streaming?**")
+        st.info(
+            "Streaming is a UX optimization for chat interfaces. This produces a structured "
+            "JSON decision, not flowing text. The latency (~15s) is acceptable for a compliance "
+            "review workflow. Adding streaming would complicate logging without user benefit."
+        )
+        st.markdown("**Eval harness design**")
+        st.info(
+            "10 golden scenarios with expected decision, confidence range, citation sources, and "
+            "reasoning topics. Precision and recall measured on FLAG decisions specifically — "
+            "the highest-stakes outcome. Brier score measures calibration: does confidence "
+            "correlate with correctness?"
+        )
+
+    st.divider()
+    st.subheader("What this is NOT (by design)")
+    st.markdown("""
+| Not built | Why not |
+|---|---|
+| Real OCR | Claude reads PDFs natively. No OCR pipeline needed for this demo. |
+| Real Vertex API calls | Out of scope for a prototype. The mock data proves the reasoning pattern. |
+| Multi-state rules | Texas only. Adding states is a data problem, not an architecture problem. |
+| Streaming responses | Not a chat interface. Structured decisions don't benefit from streaming. |
+| Production observability | Local JSONL logs only. Grafana/Datadog would be next iteration. |
+| User authentication | Single password gate. Real product would use SSO/RBAC. |
+""")
 
 
 def eval_page() -> None:

@@ -30,6 +30,8 @@ if not require_password():
 
 pages = {
     "Validation": "validation",
+    "Scenario Browser": "scenarios",
+    "Architecture": "architecture",
     "Eval Harness": "eval",
 }
 
@@ -41,6 +43,12 @@ with st.sidebar:
 if pages[page] == "validation":
     from src.ui.pages import validation_page
     validation_page()
+elif pages[page] == "scenarios":
+    from src.ui.pages import scenarios_page
+    scenarios_page()
+elif pages[page] == "architecture":
+    from src.ui.pages import architecture_page
+    architecture_page()
 elif pages[page] == "eval":
     from src.ui.pages import eval_page
     eval_page()
