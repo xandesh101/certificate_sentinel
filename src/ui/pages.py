@@ -1,11 +1,11 @@
 """Streamlit page implementations."""
 
-import base64
 import json
 import time
 import uuid
 from pathlib import Path
 
+import fitz  # pymupdf
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -34,12 +34,11 @@ def _load_cert(pdf_path: str) -> bytes:
 
 
 def _embed_pdf(pdf_bytes: bytes) -> None:
-    b64 = base64.b64encode(pdf_bytes).decode("utf-8")
-    components.html(
-        f'<iframe src="data:application/pdf;base64,{b64}" width="100%" height="520px" '
-        f'style="border:none;border-radius:4px;"></iframe>',
-        height=530,
-    )
+    """Render the first page of a PDF as an image (avoids Chrome data-URI iframe block)."""
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page = doc[0]
+    pix = page.get_pixmap(matrix=fitz.Matrix(1.8, 1.8))
+    st.image(pix.tobytes("png"), use_container_width=True)
 
 
 def validation_page() -> None:
