@@ -29,6 +29,7 @@ if not require_password():
     st.stop()
 
 pages = {
+    "Overview": "overview",
     "Validation": "validation",
     "Scenario Browser": "scenarios",
     "Architecture": "architecture",
@@ -40,7 +41,10 @@ with st.sidebar:
     st.caption("Semantic validation prototype")
     page = st.radio("Navigate", list(pages.keys()))
 
-if pages[page] == "validation":
+if pages[page] == "overview":
+    from src.ui.pages import overview_page
+    overview_page()
+elif pages[page] == "validation":
     from src.ui.pages import validation_page
     validation_page()
 elif pages[page] == "scenarios":

@@ -41,6 +41,154 @@ def _embed_pdf(pdf_bytes: bytes) -> None:
     st.image(pix.tobytes("png"), use_container_width=True)
 
 
+def overview_page() -> None:
+    """Product overview for hiring manager review."""
+    st.title("Certificate Sentinel")
+    st.caption("A Principal PM prototype — built in 10 hours for Vertex Inc.")
+
+    st.divider()
+
+    # What it is
+    st.subheader("What this is")
+    st.markdown("""
+Vertex's Certificate Center already validates exemption certificates at the **field level** —
+are required fields present and correctly formatted?
+
+**Certificate Sentinel adds semantic validation**: an AI agent that asks a harder question —
+*does this exemption claim actually make sense given who this customer is and what they buy?*
+
+A restaurant chain can submit a perfectly formatted resale certificate. Field validation passes it.
+But their transaction history shows food consumed on-premises, not resold.
+That's the mismatch this system catches.
+""")
+
+    st.divider()
+
+    # How it works - 3 columns
+    st.subheader("How it works")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown("#### 1. Read the certificate")
+        st.markdown("""
+The agent receives the exemption certificate as a PDF. Claude reads it natively —
+no OCR pipeline needed. It extracts the claimed exemption type, buyer identity, and stated reason.
+""")
+    with col2:
+        st.markdown("#### 2. Pull context")
+        st.markdown("""
+The agent calls two tools:
+- **Transaction history** — what has this customer actually been buying for the past 90 days?
+- **State rules** — what does Texas law actually require for this exemption type?
+""")
+    with col3:
+        st.markdown("#### 3. Decide + cite**")
+        st.markdown("""
+The agent produces a structured decision — **PASS**, **FLAG**, or **NEEDS_REVIEW** —
+with a confidence score, plain-language reasoning, and citations to specific
+transaction IDs and rule IDs. A human reviewer sees everything and can override.
+""")
+
+    st.divider()
+
+    # How the agent works
+    st.subheader("How the agent works")
+    col1, col2 = st.columns([3, 2])
+    with col1:
+        st.markdown("""
+The agent runs on **Claude's native tool use** — no LangChain, no framework.
+The loop is explicit and inspectable:
+
+1. Claude receives the PDF + customer ID
+2. Claude decides which tools to call and in what order
+3. Tool results are appended to the conversation and Claude reasons further
+4. Claude calls `record_decision` as its terminal action — this ends the loop
+5. A **post-decision verifier** checks every cited rule ID against the actual rules table.
+   If Claude hallucinated a rule, the decision is automatically downgraded to `NEEDS_REVIEW`.
+
+The hard cap is **10 tool-use iterations**. If the loop exceeds this, the system returns
+`NEEDS_REVIEW` with confidence 0.0 rather than guessing.
+""")
+    with col2:
+        components.html("""
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'dark'});</script>
+<div class="mermaid">
+sequenceDiagram
+    participant U as UI
+    participant A as Agent
+    participant C as Claude API
+    participant T as Tools
+    participant V as Verifier
+
+    U->>A: PDF + customer_id
+    A->>C: messages + tools
+    C->>T: get_transactions
+    T-->>C: transaction list
+    C->>T: get_rules
+    T-->>C: rule set
+    C->>T: record_decision
+    T-->>A: Decision
+    A->>V: validate citations
+    V-->>U: Final Decision
+</div>
+""", height=340)
+
+    st.divider()
+
+    # Claude API integration
+    st.subheader("How Claude API is integrated")
+    st.markdown("""
+| What | How |
+|---|---|
+| **Model** | `claude-sonnet-4-6` — strong reasoning + tool use, ~$0.05 per validation |
+| **PDF input** | Certificate sent as a `document` content block (base64-encoded) — Claude reads it natively |
+| **Tool use** | 3 tools defined as JSON schemas; Claude decides when and how to call them |
+| **Retry logic** | Exponential backoff on 5xx errors and connection failures; rate limit errors sleep 30s |
+| **Token budget** | `max_tokens=4000` per call; hard loop cap of 10 iterations |
+| **No streaming** | Decisions are structured JSON, not chat. Streaming adds complexity with no user benefit here. |
+| **Verifier** | Post-call check: cited `rule_id` values are looked up in the rules table; hallucinations caught before the result reaches the reviewer |
+""")
+
+    st.divider()
+
+    # What this proves
+    st.subheader("What this proves — and why it matters for Vertex")
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("**For the product**")
+        st.success(
+            "Semantic validation catches mismatches that field validation misses. "
+            "A restaurant claiming resale, a software firm claiming manufacturing — "
+            "these pass field checks today. This agent flags them with cited evidence, "
+            "reducing audit risk and compliance penalties for Vertex customers.",
+        )
+        st.markdown("**For the AI design**")
+        st.success(
+            "Human-in-the-loop is non-negotiable for tax compliance. Every decision "
+            "shows its reasoning and citations. Reviewers can override with a reason code. "
+            "The verifier ensures the agent can't quietly hallucinate a rule and have it "
+            "accepted. Confidence scores tell reviewers where to focus attention."
+        )
+    with col2:
+        st.markdown("**For the eval discipline**")
+        st.success(
+            "10 golden scenarios with expected decisions, confidence ranges, citation sources, "
+            "and reasoning topics. Precision and recall measured on FLAG decisions — the "
+            "highest-stakes outcome. Brier score measures calibration. "
+            "This is how you ship AI responsibly: measure before you ship, not after."
+        )
+        st.markdown("**For Vertex specifically**")
+        st.success(
+            "Vertex already has the certificate data and the customer transaction data. "
+            "The integration surface is narrow: a validation API that sits alongside "
+            "Certificate Center and returns a structured decision with evidence. "
+            "No new data collection. No model training. Deployable on existing infrastructure."
+        )
+
+    st.divider()
+    st.caption("Built in 10 hours · Python 3.11 · Anthropic claude-sonnet-4-6 · Streamlit · Synthetic data only")
+
+
 def validation_page() -> None:
     """Main certificate validation page."""
     synthetic_data_banner()
