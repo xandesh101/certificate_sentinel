@@ -44,14 +44,14 @@ def _embed_pdf(pdf_bytes: bytes) -> None:
 def overview_page() -> None:
     """Product overview for hiring manager review."""
     st.title("Certificate Sentinel")
-    st.caption("A Principal PM prototype — built in 10 hours for Vertex Inc.")
+    st.caption("An agentic AI prototype for semantic validation of sales tax exemption certificates.")
 
     st.divider()
 
     # What it is
     st.subheader("What this is")
     st.markdown("""
-Vertex's Certificate Center already validates exemption certificates at the **field level** —
+Most certificate validation today operates at the **field level** —
 are required fields present and correctly formatted?
 
 **Certificate Sentinel adds semantic validation**: an AI agent that asks a harder question —
@@ -186,7 +186,7 @@ sequenceDiagram
         )
 
     st.divider()
-    st.caption("Built in 10 hours · Python 3.11 · Anthropic claude-sonnet-4-6 · Streamlit · Synthetic data only")
+    st.caption("Python 3.11 · Anthropic claude-sonnet-4-6 · Streamlit · Synthetic data only")
 
 
 def validation_page() -> None:
