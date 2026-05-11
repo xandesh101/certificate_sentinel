@@ -76,7 +76,7 @@ Do NOT add `eval_scenarios/scenarios.json` to gitignore. The eval set is a deliv
 
 Manual, run before each commit:
 
-1. `git status` — review what's staged
+1. `git status` to review what's staged
 2. Read the diff of staged files (`git diff --cached`)
 3. Check no secrets are present: `git diff --cached | grep -i "sk-ant\|password\|secret"`
 4. If you have time: `pytest` should pass before commit

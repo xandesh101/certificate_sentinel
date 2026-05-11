@@ -5,7 +5,7 @@ import streamlit as st
 
 def synthetic_data_banner() -> None:
     st.warning(
-        "SYNTHETIC DATA ONLY — All customer names, taxpayer IDs, transactions, and certificates "
+        "SYNTHETIC DATA ONLY: All customer names, taxpayer IDs, transactions, and certificates "
         "are fictional and generated for demonstration purposes. No real customer data is used.",
         icon="⚠️",
     )
@@ -13,11 +13,11 @@ def synthetic_data_banner() -> None:
 
 def decision_banner(decision: str) -> None:
     if decision == "PASS":
-        st.success(f"Decision: **{decision}** — Certificate validated. Exemption appears legitimate.", icon="✅")
+        st.success(f"Decision: **{decision}** - Certificate is valid. The exemption checks out.", icon="✅")
     elif decision == "FLAG":
-        st.error(f"Decision: **{decision}** — Certificate flagged. Tax team review required.", icon="🚩")
+        st.error(f"Decision: **{decision}** - Certificate flagged. Please route this to your tax team for review.", icon="🚩")
     else:
-        st.warning(f"Decision: **{decision}** — Insufficient data for automated determination. Human review required.", icon="🔍")
+        st.warning(f"Decision: **{decision}** - There isn't enough data to make an automated call here. A human reviewer should take a look.", icon="🔍")
 
 
 def confidence_meter(confidence: float) -> None:
@@ -58,4 +58,4 @@ def citation_list(citations: list) -> None:
                 else:
                     ref_id = item.reference_id
                     excerpt = item.excerpt
-                st.markdown(f"**`{ref_id}`** — {excerpt}")
+                st.markdown(f"**`{ref_id}`**: {excerpt}")

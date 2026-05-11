@@ -126,7 +126,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-12345678",
         seller_name=seller,
         description_of_property="Office products including pens, paper, binders, desk accessories, and small electronics purchased for resale to commercial customers",
-        reason_for_exemption="Resale — items purchased will be resold to end customers in the ordinary course of our business as a registered retailer",
+        reason_for_exemption="Resale: items purchased will be resold to end customers in the ordinary course of our business as a registered retailer",
         date="2026-04-15",
     )
 
@@ -138,7 +138,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-23456789",
         seller_name=seller,
         description_of_property="Computer equipment, servers, and technology hardware claimed as exempt manufacturing equipment",
-        reason_for_exemption="Manufacturing exemption — equipment used in the manufacturing and production of software solutions",
+        reason_for_exemption="Manufacturing exemption: equipment used in the manufacturing and production of software solutions",
         date="2026-04-10",
     )
 
@@ -150,7 +150,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-34567890",
         seller_name=seller,
         description_of_property="Tractors, agricultural implements, irrigation equipment, and farm machinery parts used directly in agricultural production",
-        reason_for_exemption="Agricultural exemption — equipment used exclusively in the production of agricultural products for sale per Texas Tax Code Section 151.316",
+        reason_for_exemption="Agricultural exemption: equipment used exclusively in the production of agricultural products for sale per Texas Tax Code Section 151.316",
         date="2026-04-12",
     )
 
@@ -162,7 +162,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-45678901",
         seller_name=seller,
         description_of_property="Food items, kitchen supplies, and restaurant equipment claimed as exempt purchases for resale",
-        reason_for_exemption="Resale — food and supplies purchased for resale to restaurant customers",
+        reason_for_exemption="Resale: food and supplies purchased for resale to restaurant customers",
         date="2026-04-08",
     )
 
@@ -174,7 +174,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-56789012",
         seller_name=seller,
         description_of_property="Raw steel, machine parts, industrial chemicals, lubricants, and manufacturing equipment used directly in the production of structural steel components",
-        reason_for_exemption="Manufacturing exemption — raw materials and equipment incorporated into manufactured goods for sale per Texas Tax Code Section 151.318",
+        reason_for_exemption="Manufacturing exemption: raw materials and equipment incorporated into manufactured goods for sale per Texas Tax Code Section 151.318",
         date="2026-04-20",
     )
 
@@ -186,7 +186,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-12345678",
         seller_name=seller,
         description_of_property="Office products and furniture including items for resale and items for business use",
-        reason_for_exemption="Resale — office supplies and products purchased for resale to commercial customers",
+        reason_for_exemption="Resale: office supplies and products purchased for resale to commercial customers",
         date="2026-03-01",
     )
 
@@ -198,7 +198,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-56789012",
         seller_name=seller,
         description_of_property="Raw steel, machine parts, and manufacturing equipment used in production",
-        reason_for_exemption="Manufacturing exemption — materials and equipment used in production of structural steel components",
+        reason_for_exemption="Manufacturing exemption: materials and equipment used in production of structural steel components",
         date="2026-04-18",
         include_signature=False,
     )
@@ -211,7 +211,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-12345678",
         seller_name=seller,
         description_of_property="Office supplies and products claimed as agricultural production supplies",
-        reason_for_exemption="Agricultural exemption — supplies used in agricultural operations",
+        reason_for_exemption="Agricultural exemption: supplies used in agricultural operations",
         date="2026-04-05",
     )
 
@@ -223,7 +223,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-90123456",
         seller_name=seller,
         description_of_property="General merchandise and consumer goods for resale",
-        reason_for_exemption="Resale — goods purchased for resale in the ordinary course of business",
+        reason_for_exemption="Resale: goods purchased for resale in the ordinary course of business",
         date="2026-05-01",
     )
 
@@ -235,7 +235,7 @@ def generate_all() -> None:
         buyer_taxpayer_id="TX-12345678",
         seller_name=seller,
         description_of_property="Office supplies, paper products, and office accessories for resale to commercial customers",
-        reason_for_exemption="Resale — items purchased will be resold to end customers in the ordinary course of our business",
+        reason_for_exemption="Resale: items purchased will be resold to end customers in the ordinary course of our business",
         date="2026-04-25",
     )
 
