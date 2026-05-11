@@ -1,4 +1,4 @@
-"""Certificate Sentinel — Streamlit entry point."""
+"""Certificate Sentinel: Streamlit entry point."""
 
 from dotenv import load_dotenv
 

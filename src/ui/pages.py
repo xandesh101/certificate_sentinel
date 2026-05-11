@@ -51,11 +51,10 @@ def overview_page() -> None:
     # What it is
     st.subheader("What this is")
     st.markdown("""
-Most certificate validation today operates at the **field level** —
-are required fields present and correctly formatted?
+Most certificate validation today works at the **field level**: it checks whether required fields are present and correctly formatted.
 
-**Certificate Sentinel adds semantic validation**: an AI agent that asks a harder question —
-*does this exemption claim actually make sense given who this customer is and what they buy?*
+**Certificate Sentinel adds semantic validation**: an AI agent that asks a tougher question.
+*Does this exemption claim actually make sense, given who this customer is and what they actually buy?*
 
 A restaurant chain can submit a perfectly formatted resale certificate. Field validation passes it.
 But their transaction history shows food consumed on-premises, not resold.
@@ -70,20 +69,19 @@ That's the mismatch this system catches.
     with col1:
         st.markdown("#### 1. Read the certificate")
         st.markdown("""
-The agent receives the exemption certificate as a PDF. Claude reads it natively —
-no OCR pipeline needed. It extracts the claimed exemption type, buyer identity, and stated reason.
+The agent receives the exemption certificate as a PDF. Claude reads it natively, with no OCR pipeline needed. It extracts the claimed exemption type, buyer identity, and stated reason.
 """)
     with col2:
         st.markdown("#### 2. Pull context")
         st.markdown("""
 The agent calls two tools:
-- **Transaction history** — what has this customer actually been buying for the past 90 days?
-- **State rules** — what does Texas law actually require for this exemption type?
+- **Transaction history**: what has this customer actually been buying for the past 90 days?
+- **State rules**: what does Texas law actually require for this exemption type?
 """)
     with col3:
         st.markdown("#### 3. Decide + cite**")
         st.markdown("""
-The agent produces a structured decision — **PASS**, **FLAG**, or **NEEDS_REVIEW** —
+The agent produces a structured decision (**PASS**, **FLAG**, or **NEEDS_REVIEW**)
 with a confidence score, plain-language reasoning, and citations to specific
 transaction IDs and rule IDs. A human reviewer sees everything and can override.
 """)
@@ -95,13 +93,13 @@ transaction IDs and rule IDs. A human reviewer sees everything and can override.
     col1, col2 = st.columns([3, 2])
     with col1:
         st.markdown("""
-The agent runs on **Claude's native tool use** — no LangChain, no framework.
-The loop is explicit and inspectable:
+The agent runs on **Claude's native tool use**, with no LangChain and no framework.
+The loop is explicit and fully inspectable:
 
 1. Claude receives the PDF + customer ID
 2. Claude decides which tools to call and in what order
 3. Tool results are appended to the conversation and Claude reasons further
-4. Claude calls `record_decision` as its terminal action — this ends the loop
+4. Claude calls `record_decision` as its terminal action, which ends the loop
 5. A **post-decision verifier** checks every cited rule ID against the actual rules table.
    If Claude hallucinated a rule, the decision is automatically downgraded to `NEEDS_REVIEW`.
 
@@ -140,8 +138,8 @@ sequenceDiagram
     st.markdown("""
 | What | How |
 |---|---|
-| **Model** | `claude-sonnet-4-6` — strong reasoning + tool use, ~$0.05 per validation |
-| **PDF input** | Certificate sent as a `document` content block (base64-encoded) — Claude reads it natively |
+| **Model** | `claude-sonnet-4-6`: strong reasoning + tool use, ~$0.05 per validation |
+| **PDF input** | Certificate sent as a `document` content block (base64-encoded); Claude reads it natively |
 | **Tool use** | 3 tools defined as JSON schemas; Claude decides when and how to call them |
 | **Retry logic** | Exponential backoff on 5xx errors and connection failures; rate limit errors sleep 30s |
 | **Token budget** | `max_tokens=4000` per call; hard loop cap of 10 iterations |
@@ -152,13 +150,13 @@ sequenceDiagram
     st.divider()
 
     # What this proves
-    st.subheader("What this proves — and why it matters for Vertex")
+    st.subheader("What this proves, and why it matters for Vertex")
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**For the product**")
         st.success(
             "Semantic validation catches mismatches that field validation misses. "
-            "A restaurant claiming resale, a software firm claiming manufacturing — "
+            "A restaurant claiming resale, a software firm claiming manufacturing: "
             "these pass field checks today. This agent flags them with cited evidence, "
             "reducing audit risk and compliance penalties for Vertex customers.",
         )
@@ -173,7 +171,7 @@ sequenceDiagram
         st.markdown("**For the eval discipline**")
         st.success(
             "10 golden scenarios with expected decisions, confidence ranges, citation sources, "
-            "and reasoning topics. Precision and recall measured on FLAG decisions — the "
+            "and reasoning topics. Precision and recall measured on FLAG decisions, the "
             "highest-stakes outcome. Brier score measures calibration. "
             "This is how you ship AI responsibly: measure before you ship, not after."
         )
@@ -196,7 +194,7 @@ def validation_page() -> None:
     st.caption("Agentic semantic validation of sales tax exemption certificates")
 
     scenarios = _load_scenarios()
-    scenario_options = {s["scenario_id"]: f"{s['scenario_id']} — {s['description']}" for s in scenarios}
+    scenario_options = {s["scenario_id"]: f"{s['scenario_id']}: {s['description']}" for s in scenarios}
     scenario_ids = list(scenario_options.keys())
 
     selected_id = st.selectbox(
@@ -301,7 +299,7 @@ def validation_page() -> None:
 
 
 def scenarios_page() -> None:
-    """Scenario browser — all 10 test cases with PDFs for hiring team review."""
+    """Scenario browser: all 10 test cases with PDFs for hiring team review."""
     synthetic_data_banner()
     st.title("Scenario Browser")
     st.caption("All 10 evaluation scenarios with certificates and expected outcomes.")
@@ -312,7 +310,7 @@ def scenarios_page() -> None:
 
     for s in scenarios:
         icon = decision_colors.get(s["expected_decision"], "⚪")
-        header = f"{icon} {s['scenario_id']} — {s['description']}"
+        header = f"{icon} {s['scenario_id']}: {s['description']}"
         with st.expander(header):
             col1, col2 = st.columns([1, 1])
             with col1:
@@ -348,7 +346,7 @@ def scenarios_page() -> None:
 def architecture_page() -> None:
     """System design diagram page."""
     st.title("System Architecture")
-    st.caption("How Certificate Sentinel works — for engineering and product review.")
+    st.caption("How Certificate Sentinel works, for engineering and product review.")
 
     st.markdown("""
 This prototype adds a **semantic validation layer** on top of Vertex's existing field-level certificate validation.
@@ -437,7 +435,7 @@ flowchart TD
         st.markdown("**Eval harness design**")
         st.info(
             "10 golden scenarios with expected decision, confidence range, citation sources, and "
-            "reasoning topics. Precision and recall measured on FLAG decisions specifically — "
+            "reasoning topics. Precision and recall measured on FLAG decisions specifically, "
             "the highest-stakes outcome. Brier score measures calibration: does confidence "
             "correlate with correctness?"
         )
@@ -501,7 +499,7 @@ def _display_eval_report(report) -> None:
     st.subheader("Per-Scenario Results")
     for r in report.scenarios:
         icon = "✅" if r.correct else "❌"
-        with st.expander(f"{icon} {r.scenario_id} — Expected: {r.expected_decision}, Got: {r.actual_decision}"):
+        with st.expander(f"{icon} {r.scenario_id} | Expected: {r.expected_decision}, Got: {r.actual_decision}"):
             col1, col2, col3 = st.columns(3)
             col1.metric("Correct", str(r.correct))
             col2.metric("Confidence", f"{r.confidence:.0%}")

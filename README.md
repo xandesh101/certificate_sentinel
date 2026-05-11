@@ -8,11 +8,11 @@ A 10-hour prototype of an agentic AI system that performs **semantic validation*
 
 Vertex's Certificate Center already validates certificates at the field level (are required fields present?). This prototype adds a **semantic layer**: an agent that reasons across the certificate content, the customer's 90-day transaction history, and applicable state exemption rules to flag mismatches that field validation misses.
 
-Example: A restaurant chain submits a resale certificate. Fields are all present and valid. But their transactions show food consumed on premises, not resold — a semantic mismatch that field validation cannot catch.
+Example: A restaurant chain submits a resale certificate. Fields are all present and valid. But their transactions show food consumed on premises, not resold. That semantic mismatch is exactly what field validation misses.
 
 ## Demo
 
-**Live:** `[Streamlit Cloud URL — set after deployment]`  
+**Live:** `[Streamlit Cloud URL (set after deployment)]`  
 **Password:** Shared separately.
 
 ## Architecture
@@ -30,7 +30,7 @@ graph TD
     E --> J[(Mock Rules Data)]
 ```
 
-The agent uses Claude's native tool use — no LangChain, no agent framework. The loop is explicit and inspectable in the UI's "raw agent trace" expander.
+The agent uses Claude's native tool use, with no LangChain and no agent framework. The loop is explicit and fully inspectable in the UI's "raw agent trace" expander.
 
 ## How to read this repo
 
@@ -72,11 +72,11 @@ pytest tests/test_agent.py -v
 
 ## What this is NOT
 
-- No real OCR — PDFs are synthetic and read natively by Claude
-- No real Vertex API calls — all data is mocked JSON
-- No multi-state reasoning — Texas only
-- No streaming — structured decisions don't benefit from streaming
-- No production observability — local JSONL logs only
+- No real OCR (PDFs are synthetic and read natively by Claude)
+- No real Vertex API calls (all data is mocked JSON)
+- No multi-state reasoning (Texas only)
+- No streaming (structured decisions don't benefit from it)
+- No production observability (local JSONL logs only)
 - No user authentication beyond a single password gate
 - No model fine-tuning
 
